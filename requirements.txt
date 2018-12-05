@@ -1,2 +1,5 @@
-boxsdk      == 2.0.0
-pyzotero    == 1.3.8
+PyFunctional == 1.1.2
+PyMuPDF      == 1.14.3
+
+boxsdk       == 2.0.0
+pyzotero     == 1.3.8

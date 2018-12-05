@@ -1,9 +1,11 @@
 import tempfile
 import os
 
-from zotero import *
 from functional import seq
 from boxsdk import DevelopmentClient
+
+from zotero import *
+from img_extract import extract_from_pdf, extract_from_docx, extract_all
 
 BOX_URL_PREFIX = 'https://berkeley.app.box.com/folder/'
 
@@ -34,10 +36,15 @@ def convert_data(row):
     template['tags'] = seq(tags.split(',')) \
         .map(lambda tag: 'raw:' + tag) \
         .map(make_tag).to_list()
+
+    template['tags'].append(make_tag('fa16')) # add semester tag
+
     template['url'] = BOX_URL_PREFIX + box_id
     return template
 
 def meta_to_zot(coll_id, **kwargs):
+    print('creating item metadata in zotero')
+
     templates = seq(data) \
         .map(convert_data) \
         .to_list()
@@ -46,42 +53,73 @@ def meta_to_zot(coll_id, **kwargs):
     if (items_resp['failed']):
         print('Failed to create items:', items_resp['failed'])
 
-    for item in items_resp['successful'].values():
+    succ = items_resp['successful']
+    for item in succ.values():
         zot.addto_collection(coll_id, item)
 
+    print('done, created {} items'.format(len(succ)))
+
 def files_to_zot(coll_id, box_client, **kwargs):
-    items = zot.collection_items(coll_id)
+    print('moving files to zotero')
+
+    items = [ x['data'] for x in zot.collection_items(coll_id) ]
+    print('found {} items'.format(len(items)))
+
+    attachments = {}
+    parent_items = []
     for item in items:
-        if 'url' not in item['data'] or \
-                item['data']['url'].index(BOX_URL_PREFIX) != 0:
-            print('item has unknown url:', item['key'])
+        if 'parentItem' in item:
+            parentId = item['parentItem']
+            if parentId:
+                attachments[parentId] = attachments.get(parentId, set())
+                attachments[parentId].add(item['filename'])
+                continue
+        if 'url' not in item \
+                or BOX_URL_PREFIX not in item['url'] \
+                or item['url'].index(BOX_URL_PREFIX) != 0:
+            print('  item has unknown url: {}'.format(item['key']))
+            continue
+        parent_items.append(item)
+
+    for item in parent_items:
+        folder_id = item['url'][len(BOX_URL_PREFIX):]
+        folder = box_client.folder(folder_id)
+
+        existing_attachments = attachments[item['key']]
+        boxitems = [ x for x in folder.get_items() if x.name not in existing_attachments ]
+
+        if not boxitems:
+            print('  no new files to download for {}'.format(item['title']))
             continue
 
-        folder_id = item['data']['url'][len(BOX_URL_PREFIX):]
-        folder = box_client.folder(folder_id)
-        items = folder.get_items()
-
+        print('  downloading {} files for {}'.format(len(boxitems), item['title']))
         with tempfile.TemporaryDirectory() as temp_dir:
-            temp_fds, temp_file_names = zip(*[ tempfile.mkstemp(dir=temp_dir) for _ in items ])
-            for temp_fd in temp_fds:
-                os.close(temp_fd)
 
-            for item, temp_file_name in zip(items, temp_file_names):
-                with open(temp_file_name) as temp_file:
-                    item.download_to(temp_file)
+            file_paths = [ os.path.join(temp_dir, boxitem.name) for boxitem in boxitems ]
+            for file_path, boxitem in zip(file_paths, boxitems):
+                print('    downloading {}'.format(boxitem.name))
+                with open(file_path, 'wb') as temp_file:
+                    boxitem.download_to(temp_file)
 
-            print(temp_file_names)
-            input()
-            break
-            # zot.attachment_simple(temp_file_names, parentid=item['key'])
+            print('  extracting')
+            extracted_paths = extract_all(file_paths)
+            print('    extracted {}'.format(len(extracted_paths)))
+
+            print('  uploading to zotero')
+            zot.attachment_simple(file_paths + extracted_paths, parentid=item['key'])
+
+    print('done moving to zotero')
 
 
 
 
 if __name__ == '__main__':
     kwargs = {}
+    print('BOX', end=' ')
     kwargs['box_client'] = DevelopmentClient()
-    kwargs['coll_id'] = get_or_make_collection(COLLECTION_NAME)['key']
+    coll = get_or_make_collection(COLLECTION_NAME)
+    kwargs['coll_id'] = coll['key']
 
-    # meta_to_zot(**kwargs)
+    if coll['meta']['numItems'] <= 0:
+        meta_to_zot(**kwargs)
     files_to_zot(**kwargs)
