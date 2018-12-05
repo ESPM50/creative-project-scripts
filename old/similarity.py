@@ -77,9 +77,9 @@ def preprocess_filename(S):
 def filename_similarity(S, T):
     S = preprocess_filename(S)
     T = preprocess_filename(T)
-    return substr(S, T)
+    return substrsim(S, T)
 
-def substr(S, T):
+def substrsim(S, T):
     L = [ 0 for _ in range(len(S) + len(T)) ]
     tot = 0
     best_len = 0

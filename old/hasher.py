@@ -70,20 +70,20 @@ if __name__ == '__main__':
 
 
 
-class Item:
-    def __init__(self):
-        self.authors = [('Ronan', 'Spreyer')]
-        self.year = 2018
-        self.title = 'Pikachu\'s Revenge'
-        self.sub_title = 'Surviving Charizard\'s crimsom dive'
-        self.type = 'Academic article'
+# class Item:
+#     def __init__(self):
+#         self.authors = [('Ronan', 'Spreyer')]
+#         self.year = 2018
+#         self.title = 'Pikachu\'s Revenge'
+#         self.sub_title = 'Surviving Charizard\'s crimsom dive'
+#         self.type = 'Academic article'
 
-    def __str__(self):
-        auth = map(lambda tup: '{1}, {0}'.format(*tup), self.authors)
-        auth = '; '.join(auth)
-        return f'{auth} ({self.year}).  {self.title} - {self.sub_title}.  {self.type}'
+#     def __str__(self):
+#         auth = map(lambda tup: '{1}, {0}'.format(*tup), self.authors)
+#         auth = '; '.join(auth)
+#         return f'{auth} ({self.year}).  {self.title} - {self.sub_title}.  {self.type}'
 
-    def hash_id(self):
-        m = hashlib.sha1()
-        m.update(str(self).encode('utf-8'))
-        return m.digest().hex()
+#     def hash_id(self):
+#         m = hashlib.sha1()
+#         m.update(str(self).encode('utf-8'))
+#         return m.digest().hex()
