@@ -12,10 +12,13 @@ def extract_all(file_paths):
     extracted = []
     for file_path in file_paths:
         _, ext = os.path.splitext(file_path)
-        if ext == '.pdf':
-            extracted.extend(extract_from_pdf(file_path))
-        elif ext == '.docx':
-            extracted.extend(extract_from_docx(file_path))
+        try:
+            if ext == '.pdf':
+                extracted.extend(extract_from_pdf(file_path))
+            elif ext == '.docx':
+                extracted.extend(extract_from_docx(file_path))
+        except:
+            print('      failed to open file "{}"'.format(file_path))
     return extracted
 
 def extract_from_docx(file_path):
