@@ -22,7 +22,7 @@ data = [
     ('Animal Agriculture', 'Carabuena, Sara Kate', 'animal agriculture,environmental impact,climate change'),
     ('Colonization in the Northeast', 'Montanez, Martha', 'fur trade,introduction to catholicism,trading among northeastern tribes'),
     ('Commodification of Nature in a Changing Environment', 'Naik, Nishali', 'natural resources,big business,pollution'),
-    ('Compare and Contrast (I\'ll be comparing and contrasting something, but I\'m not sure what yet)', 'Malit, Ben', 'asian american immigrants,ecology and california marine biology,worster\'s analytical framework'),
+    ('Images ', 'Mallit, Ben', 'asian american immigrants,ecology and california marine biology,worster\'s analytical framework'),
     ('Continuities and Change over time in the Social and Political Attitudes towards the Chinese over the 19th to 20th centuries', 'Huang, Angela', 'federal policies/social reactions,labor,immigration,'),
     ('Contrasting Realities ', 'Erin , Cain ', 'environmental justice,ecosystems,exploitation'),
     ('Deer to Me', 'Jung, Catherine', 'natural resources,assimilation and acculturation,family history'),
@@ -41,19 +41,19 @@ data = [
     ('Personal history of Chinese American women ', 'zhan, shuya', 'chinese immigration,resistance,women\'s role'),
     ('Pesticides', 'Li, Jeffrey;Le, Sabrina;Zhong, Justin', 'naled,ddt,methyl bromine,methyl bromide'),
     ('Project Short Story', 'Fann, Amy;Chu, Brenton', 'bp oil spill,identity,preservation of natural resources,environmental preservation'),
-    ('Set Up to Fail ', 'Campos, Josh', 'systemic poverty,resource management,power'),
+    ('Ceiling to the Sand', 'Campos, Josh', 'systemic poverty,resource management,power'),
     ('Sketch series on the Ohlone People\'s natural resource use and interaction', 'Wagner, Emily', 'ohlone,natural resources,interaction with nature'),
     ('The Chinese Immigrant Story', 'Lin, Helen;Thai, Thanh Thanh. ', 'chinese immigrant experience,california gold rush,transcontinental railroad'),
     ('The conflict of man and nature', 'Turnbull, Chase', 'man and nature,nature as sacred,nature as a resource'),
     ('the ecological Indian and his land ', 'Babikian, Karnie', 'woodland indians pre contact,cultural appreciation,niche in nature/land'),
-    ('The faces of Hurricane Katrina ( Not final )', 'Mateo, Crystal', 'hurricane katrina,individual impact,environmental racism'),
+    ('The Faces of Hurricane Katrina', 'Mateo, Crystal', 'hurricane katrina,individual impact,environmental racism'),
     ('The Gold Rush', 'Kim, Ashley', 'gold rush,mining,immigrants'),
-    ('The Patterns ', 'Wu, Lisa', 'change in landscape and land use in california'),
+    ('Hey, CAreful with that WATER', 'Wu, Lisa', 'change in landscape and land use in california'),
     ('Transition of American Views on Natural Resources', 'Kim, Heidi;Li, Amy', 'views of nature,native americans,europeans'),
 ]
 
 def convert_data(row):
-    title, authors_str, tags, box_id = row
+    title, authors_str, tags, box_id = map(lambda x: x.strip(), row)
     template = zot.item_template('artwork')
     template['title'] = title
     template['creators'] = seq(authors_str.split(';')) \
