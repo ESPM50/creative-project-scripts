@@ -23,9 +23,15 @@ def get_or_make_collection(name):
 def make_tag(tag_str):
     return { 'tag': tag_str, 'type': 1 }
 
+def get_zotero_file_url(item_key):
+    return f'https://api.zotero.org/{ZOTERO_LIBRARY_TYPE}s/{ZOTERO_LIBRARY_ID}/items/{item_key}/file?v=3&key={ZOTERO_API_KEY}'
+
 def get_zotero_file_stream(item_key):
-    url = f'https://api.zotero.org/{ZOTERO_LIBRARY_TYPE}s/{ZOTERO_LIBRARY_ID}/items/{item_key}/file?v=3&key={ZOTERO_API_KEY}'
+    url = get_zotero_file_url(item_key)
     return requests.get(url, stream=True).raw
+
+def get_zotero_item_url(item_key):
+    return f'https://www.zotero.org/{ZOTERO_LIBRARY_TYPE}s/{ZOTERO_LIBRARY_ID}/items/{item_key}'
 
 # if __name__ == '__main__':
 

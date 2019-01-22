@@ -10,25 +10,40 @@ OMEKA_KEY_CREDENTIAL = os.environ['OMEKA_KEY_CREDENTIAL']
 OMEKA_BASE_URL = "http://communitiesandlandscapes.org/api"
 
 
-def create_or_get_item_set(title, description):
-  url = OMEKA_BASE_URL + '/item_sets'
+def get_if_exists(endpoint, title):
+  url = OMEKA_BASE_URL + endpoint
 
   querystring = {
-      'key_identity': OMEKA_KEY_IDENTITY,
-      'key_credential': OMEKA_KEY_CREDENTIAL,
-      'search': title
+    'key_identity': OMEKA_KEY_IDENTITY,
+    'key_credential': OMEKA_KEY_CREDENTIAL,
+    'search': title
   }
-
   response = requests.get(url, params=querystring)
+
   if response.status_code // 100 != 2:
     raise Exception(response.text)
 
   match = seq(json.loads(response.text)) \
     .find(lambda x: x["dcterms:title"][0]["@value"] == title)
-  if match: # item set already exists
+  if match: # exists
     return match
 
+  return None
+
+
+def create_or_get_item_set(title, description):
+  url = OMEKA_BASE_URL + '/item_sets'
+
+  existing = get_if_exists('/item_sets', title)
+  if existing:
+    return existing
+
   # otherwise, create the item set
+  querystring = {
+    'key_identity': OMEKA_KEY_IDENTITY,
+    'key_credential': OMEKA_KEY_CREDENTIAL
+  }
+
   data = {
     "@type": [
       "o:ItemSet",
@@ -69,12 +84,17 @@ def create_or_get_item_set(title, description):
 
 
 
-def create_item(title, description, creators, files, item_sets, medium=None, size=None):
+def create_or_get_item(title, description, creators, files, item_sets, medium=None, size=None, date=None, urls=None):
   url = OMEKA_BASE_URL + "/items"
 
+  existing = get_if_exists('/items', title)
+  if existing:
+    print('\tAlready exists')
+    return existing
+
   querystring = {
-      'key_identity': OMEKA_KEY_IDENTITY,
-      'key_credential': OMEKA_KEY_CREDENTIAL
+    'key_identity': OMEKA_KEY_IDENTITY,
+    'key_credential': OMEKA_KEY_CREDENTIAL
   }
 
   data = {
@@ -158,7 +178,7 @@ def create_item(title, description, creators, files, item_sets, medium=None, siz
         "property_id": 23,
         "property_label": "Date Issued",
         "is_public": True,
-        "@value": "UPLOAD DATE/DATE ISSUED"
+        "@value": date or '<unknown date>'
       }
     ],
     "dcterms:license": [
@@ -192,18 +212,41 @@ def create_item(title, description, creators, files, item_sets, medium=None, siz
         "@value": size
       }
     ]
+  if urls:
+    data["dcterms:source"] = [
+      {
+          "type": "uri",
+          "property_id": 11,
+          "property_label": "Source",
+          "is_public": True,
+          "@id": url,
+          "o:label": label
+      }
+      for label, url in urls
+    ]
 
-  files_dict = { f'file[{i}]': f for i, f in enumerate(files) }
+  # files_dict = { f'file[{i}]': f for i, f in enumerate(files) }
+
+  # data['o:media'] = [
+  #     {
+  #       # "o:ingester": "upload",
+  #       "file_index": i
+  #     }
+  #     for i in range(len(files))
+  # ]
 
   data['o:media'] = [
-      {
-        "o:ingester": "upload",
-        "file_index": i
-      }
-      for i in range(len(files))
+    {
+      "o:ingester": "url",
+    	"ingest_url": url,
+		  "o:source": filename
+    }
+    for filename, url in files
   ]
 
-  response = requests.post(url, params=querystring, data={'data': json.dumps(data)}, files=files_dict)
+  # response = requests.post(url, params=querystring, data={'data': json.dumps(data)}, files=files_dict)
+  response = requests.post(url, params=querystring, json=data)
   if response.status_code // 100 != 2:
     raise Exception(response.text)
+  print('\tCreated')
   return json.loads(response.text)

@@ -33,14 +33,32 @@ def upload_zotero_item(item):
   description = data['abstractNote']
   medium = data['artworkMedium']
   size = data['artworkSize']
+  date = data['dateAdded']
+
   box_url = data['url']
+  zot_url = get_zotero_item_url(item['key'])
+  urls = [
+    ('Box Folder', box_url),
+    ('Zotero Item', zot_url)
+  ]
+
   tags = data['tags']
 
   children = zot.children(item['key'])
+  # files = [
+  #   (child['data']['filename'], get_zotero_file_stream(child['key']))
+  #   for child in children
+  # ]
   files = [
-    (child['data']['filename'], get_zotero_file_stream(child['key']))
+    (child['data']['filename'], get_zotero_file_url(child['key']))
     for child in children
+    if not child['data']['filename'].endswith('docx') # TODO allow DOCX
+    # application/vnd.openxmlformats-officedocument.wordprocessingml.document
+    # https://omeka.org/forums-legacy/topic/xlsx-file-types-not-viewing-correctly/#post-100559
   ]
+  print('\tChild files:')
+  for x in files:
+    print('\t\t', x[0])
 
   creators = [
     creator['lastName'] + ', ' + creator['firstName']
@@ -53,7 +71,9 @@ def upload_zotero_item(item):
     if x in ITEM_SET_IDS:
       item_sets.append(ITEM_SET_IDS[x])
 
-  omeka.create_item(title, description, creators, files, item_sets, medium, size)
+  omeka.create_or_get_item(title, description,
+      creators=creators, files=files, item_sets=item_sets, medium=medium,
+      size=size, date=date, urls=urls)
 
 # TODO don't create items if they already exist.
 
@@ -62,4 +82,8 @@ if '__main__' == __name__:
   for item in items:
     print(f'Uploading item "{item["data"]["title"]}" ({item["key"]})')
     upload_zotero_item(item)
+    print()
+
+# item = zot.item('ARWR7JSN')
+# upload_zotero_item(item)
 
