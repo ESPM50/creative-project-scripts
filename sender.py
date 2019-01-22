@@ -40,7 +40,7 @@ def convert_data(row, semester_tag=None):
     template = zot.item_template('artwork')
     # {'itemType': 'artwork', 'title': '', 'creators': [{'creatorType': 'artist', 'firstName': '', 'lastName': ''}], 'abstractNote': '', 'artworkMedium': '', 'artworkSize': '', 'date': '', 'language': '', 'shortTitle': '', 'archive': '', 'archiveLocation': '', 'libraryCatalog': '', 'callNumber': '', 'url': '', 'accessDate': '', 'rights': '', 'extra': '', 'tags': [], 'collections': [], 'relations': {}}
 
-    template['title'] = row['title']
+    template['title'] = row['title'].strip()
     template['creators'] = seq(parse_authors(row['authors'])) \
         .map(lambda last_first: {
             'creatorType': 'artist',
@@ -81,7 +81,7 @@ def folder_name(row):
 
 def file_name(name):
     for ic in [ '\\', '/', ':', '*', '"', '<', '>', '?', '|' ]:
-        name = name.replace(ic, '_');
+        name = name.replace(ic, '_')
     return name
 
 
@@ -155,6 +155,7 @@ def meta_to_zot(new_pieces, coll_id, semester_tag, **kwargs):
         .filter(lambda x: 'parentItem' not in x) \
         .map(lambda x: x['title']) \
         .to_set()
+    print('EXISTING TITLES', existing_titles)
 
     templates = seq(new_pieces) \
         .map(lambda x: convert_data(x, semester_tag=semester_tag)) \

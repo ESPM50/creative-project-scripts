@@ -1,0 +1,103 @@
+{
+  "@type": [
+    "o:Item",
+    "dctype:Collection"
+  ],
+  "o:resource_class": {
+      "@id": "http://communitiesandlandscapes.org/api/resource_classes/90",
+      "o:id": 23
+  },
+  "o:resource_template": {
+      "@id": "http://communitiesandlandscapes.org/api/resource_templates/4",
+      "o:id": 7
+  },
+  "o:media": [
+    {
+      "o:ingester": "upload",
+      "file_index": 0
+    },
+    {
+      "o:ingester": "upload",
+      "file_index": 1
+    }
+  ],
+  "dcterms:title": [
+    {
+      "type": "literal",
+      "property_id": 1,
+      "property_label": "Title",
+      "is_public": true,
+      "@value": "TITLE"
+    }
+  ],
+  "dcterms:description": [
+    {
+      "type": "literal",
+      "property_id": 4,
+      "property_label": "Description",
+      "is_public": true,
+      "@value": "DESCRIPTION"
+    }
+  ],
+  "dcterms:type": [
+    {
+      "type": "literal",
+      "property_id": 8,
+      "property_label": "Type",
+      "is_public": true,
+      "@value": "TYPE"
+    }
+  ],
+  "dcterms:subject": [
+    {
+      "type": "literal",
+      "property_id": 3,
+      "property_label": "Subject",
+      "is_public": true,
+      "@value": "SUBJECT"
+    }
+  ],
+  "dcterms:creator": [
+    {
+      "type": "literal",
+      "property_id": 2,
+      "property_label": "Creator",
+      "is_public": true,
+      "@value": "CREATOR 1"
+    },
+    {
+      "type": "literal",
+      "property_id": 2,
+      "property_label": "Creator",
+      "is_public": true,
+      "@value": "CREATOR 2"
+    }
+  ],
+  "dcterms:publisher": [
+      {
+          "type": "literal",
+          "property_id": 5,
+          "property_label": "Publisher",
+          "is_public": true,
+          "@value": "PUBLISHER"
+      }
+  ],
+  "dcterms:issued": [
+    {
+      "type": "literal",
+      "property_id": 23,
+      "property_label": "Date Issued",
+      "is_public": true,
+      "@value": "UPLOAD DATE/DATE ISSUED"
+    }
+  ],
+  "dcterms:license": [
+    {
+      "type": "literal",
+      "property_id": 49,
+      "property_label": "License",
+      "is_public": true,
+      "@value": "LICENSE"
+    }
+  ]
+}

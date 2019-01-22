@@ -1,4 +1,6 @@
 import os
+import requests
+
 from pyzotero import zotero
 
 ZOTERO_LIBRARY_ID = '2250084'
@@ -21,6 +23,9 @@ def get_or_make_collection(name):
 def make_tag(tag_str):
     return { 'tag': tag_str, 'type': 1 }
 
+def get_zotero_file_stream(item_key):
+    url = f'https://api.zotero.org/{ZOTERO_LIBRARY_TYPE}s/{ZOTERO_LIBRARY_ID}/items/{item_key}/file?v=3&key={ZOTERO_API_KEY}'
+    return requests.get(url, stream=True).raw
 
 # if __name__ == '__main__':
 
