@@ -5,6 +5,7 @@ import os
 from zotero import *
 import omeka
 
+IMG_EXTENSIONS = [ '.png', '.jpg', '.jpeg', '.gif' ]
 
 ITEM_SET_TITLE = 'ESPM 50 Creative Projects'
 
@@ -52,9 +53,10 @@ def upload_zotero_item(item):
   files = [
     (child['data']['filename'], get_zotero_file_url(child['key']))
     for child in children
-    if not child['data']['filename'].endswith('docx') # TODO allow DOCX
-    # application/vnd.openxmlformats-officedocument.wordprocessingml.document
-    # https://omeka.org/forums-legacy/topic/xlsx-file-types-not-viewing-correctly/#post-100559
+    if any(child['data']['filename'].endswith(ie) for ie in IMG_EXTENSIONS)
+    # if not child['data']['filename'].endswith('docx') # TODO allow DOCX
+    # # application/vnd.openxmlformats-officedocument.wordprocessingml.document
+    # # https://omeka.org/forums-legacy/topic/xlsx-file-types-not-viewing-correctly/#post-100559
   ]
   print('\tChild files:')
   for x in files:
