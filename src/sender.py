@@ -9,17 +9,34 @@ from img_extract import extract_from_pdf, extract_from_docx, extract_all
 import box
 import similarity
 
+from data.semesters import *
 
 BOX_URL_PREFIX = 'https://berkeley.app.box.com/folder/'
+BOX_FOLDER_ID_DICT = {
+    SEMESTER_16FA: 57392826938,
+    SEMESTER_17SP: 57860927765,
+    SEMESTER_17FA: 57392956412,
+    SEMESTER_18SP: 57395093689,
+}
 
+def send_data_all(pieces):
+    groupby_semesters = {}
+    for piece in pieces:
+        groupby_semesters.setdefault(piece['semester'], []).append(piece)
 
-def send_data(pieces, box_input_folder_id, collection_name, semester_tag):
+    box_client = DevelopmentClient()
+
+    for semester, pieces in groupby_semesters.items():
+        box_input_folder_id = BOX_FOLDER_ID_DICT[semester]
+        send_data(pieces, box_input_folder_id, semester, semester, box_client=box_client)
+
+def send_data(pieces, box_input_folder_id, collection_name, semester_tag, box_client=None):
     kwargs = {}
     print('BOX', end=' ')
     kwargs['pieces'] = pieces
     kwargs['semester_tag'] = semester_tag
     kwargs['box_folder_id'] = box_input_folder_id
-    kwargs['box_client'] = DevelopmentClient()
+    kwargs['box_client'] = box_client or DevelopmentClient()
     coll = get_or_make_collection(collection_name)
     kwargs['coll_id'] = coll['key']
 
